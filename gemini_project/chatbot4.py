@@ -41,9 +41,9 @@ while True:
         generation_config={
             "temperature":0.8,
             "top_k": 10,
-            "max_output_tokens": 1000}
+            "max_output_tokens": 500}
     )
-    #print(f"{Fore.CYAN}Thinking")
+    # print(f"{Fore.CYAN}Thinking")
     # for i in range(3):
     #     print(Fore.CYAN + ".", end="", flush=True)
     #     time.sleep(1)

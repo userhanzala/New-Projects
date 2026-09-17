@@ -29,26 +29,42 @@ persona = ["""
            """You are a sharp, concise, and authoritative subject matter expert. Deliver accurate, no-nonsense answers quickly, breaking down complex topics into clear, actionable bullet points. Prioritize efficiency and clarity over pleasantries.""",
            """You are an imaginative, enthusiastic, and out-of-the-box creative collaborator. Your purpose is to inspire users, build upon their ideas with wild enthusiasm, and offer unexpected perspectives. Keep the energy high and the language vivid and expressive."""
            ]
-query = input(f"{Fore.CYAN}Gemini: {Fore.RESET}")
 client = genai.Client()
+history = ""
+try:
+    with open("chat_1.txt", "r") as f:
+      history = f.read()
+except FileNotFoundError:
+     pass
+query = input(f"{Fore.CYAN}Gemini: {Fore.RESET}")
+history = history + "User= " + query
 
 while True:
     interaction = client.interactions.create(
         model="gemini-3.5-flash-lite",
-        input=query,
-        system_instruction=persona[0],
+        input=history,
+        stream=True,
+        system_instruction=persona[1],
         generation_config={
             "temperature":0.8,
             "top_k": 10,
             "max_output_tokens": 500}
     )
-    print(f"{Fore.CYAN}Triangulating")
-    for i in range(3):
-        print(Fore.CYAN + ".", end="", flush=True)
-        time.sleep(1)
+    # print(f"{Fore.CYAN}Thinking")
+    # for i in range(3):
+    #     print(Fore.CYAN + ".", end="", flush=True)
+    #     time.sleep(1)
     print()
-    print(Fore.CYAN + "Gemini Replies: \n\n", interaction.output_text)
+    #print(Fore.CYAN + "Gemini Replies: \n\n", interaction.output_text)
+    for event in interaction:
+        if event.event_type == "step.delta":
+            if event.delta.type == "text":
+                print(event.delta.text, end="", flush=True)
     print()
+    history = history + "Assistant: "
     query = input(f"{Fore.CYAN}Gemini: {Fore.RESET}")
+    history = history + "User: " + query
     if (query == "") or (query == "exit") or (query == "cls"):
-        break
+         with open("chat_1.txt", "a") as f:
+                f.write(history)
+                break
